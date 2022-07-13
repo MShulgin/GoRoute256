@@ -1,0 +1,161 @@
+version: "3"
+
+services:
+
+  zookeeper:
+    image: docker.io/bitnami/zookeeper:3.8
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+
+  kafka-1:
+    image: docker.io/bitnami/kafka:3.2
+    ports:
+      - "9095:9095"
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - KAFKA_CFG_LISTENERS=INTERNAL://:9092,EXTERNAL://:9095
+      - KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://kafka-1:9092,EXTERNAL://localhost:9095
+      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=INTERNAL
+      - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
+    depends_on:
+      - zookeeper
+
+  etcd:
+    image: 'bitnami/etcd:latest'
+    environment:
+      - ALLOW_NONE_AUTHENTICATION=yes
+      - ETCD_ADVERTISE_CLIENT_URLS=http://localhost:2379
+    ports:
+      - "2379:2379"
+
+  redis:
+    image: "redis:7"
+    ports:
+      - "6379:6379"
+
+  memcache:
+    image: "memcached:1.6"
+    command: "-m 64"
+    ports:
+      - "11211:11211"
+
+  pg-offer:
+    image: "postgres:14"
+    environment:
+      POSTGRES_DB: "offer"
+      POSTGRES_USER: "app"
+      POSTGRES_PASSWORD: "pwd"
+      PG_DATA: "/var/lib/postgresql/data/pgdata"
+    volumes:
+      - ./offer/db:/docker-entrypoint-initdb.d
+    ports:
+      - "5442:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+
+
+  pg-post:
+    image: "postgres:14"
+    environment:
+      POSTGRES_DB: "post"
+      POSTGRES_USER: "app"
+      POSTGRES_PASSWORD: "pwd"
+      PG_DATA: "/var/lib/postgresql/data/pgdata"
+    volumes:
+      - ./post/db:/docker-entrypoint-initdb.d
+    ports:
+      - "5443:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  pg-shipment-1:
+    image: "postgres:14"
+    environment:
+      POSTGRES_DB: "shipment"
+      POSTGRES_USER: "app"
+      POSTGRES_PASSWORD: "pwd"
+      PG_DATA: "/var/lib/postgresql/data/pgdata"
+    volumes:
+      - ./shipment/db:/docker-entrypoint-initdb.d
+    ports:
+      - "5444:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  pg-shipment-2:
+    image: "postgres:14"
+    environment:
+      POSTGRES_DB: "shipment"
+      POSTGRES_USER: "app"
+      POSTGRES_PASSWORD: "pwd"
+      PG_DATA: "/var/lib/postgresql/data/pgdata"
+    volumes:
+      - ./shipment/db:/docker-entrypoint-initdb.d
+    ports:
+      - "5445:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui
+    ports:
+      - "19092:8080"
+    environment:
+      - KAFKA_CLUSTERS_0_NAME=kafka
+      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka-1:9092
+      - KAFKA_CLUSTERS_0_ZOOKEEPER=zookeeper:2181
+    depends_on:
+      - kafka-1
+
+  offer:
+    build:
+      context: .
+      dockerfile: deploy/docker/Dockerfile.offer
+    image: offer:1.0
+    command: "./main -conf /offer.yml"
+    ports:
+      - "8081:80"
+    volumes:
+      - "./offer/config/offer.yml:/offer.yml:ro"
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 2G
+
+  prometheus:
+    image: bitnami/prometheus:2
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/opt/bitnami/prometheus/conf/prometheus.yml
+
+
+  yandex-tank:
+    image: direvius/yandex-tank
+    command: "-c /load.yml /offer_ammo.txt"
+    volumes:
+      - "./load.yml:/load.yml:ro"
+      - "./offer_ammo.txt:/offer_ammo.txt:ro"
+      - "./token.txt:/token.txt:ro"
+

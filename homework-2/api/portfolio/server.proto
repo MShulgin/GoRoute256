@@ -1,0 +1,141 @@
+syntax = "proto3";
+
+option go_package = "pkg/pb";
+
+import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
+
+service PortfolioService {
+  rpc CreateAccount(CreateAccountRequest) returns (CreateAccountResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/account"
+      body: "*"
+    };
+  }
+  rpc GetAccount(GetAccountInfoRequest) returns (AccountInfoResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/account"
+    };
+  }
+  rpc CreatePortfolio(CreatePortfolioRequest) returns (CreatePortfolioResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/account/{accountId}/portfolio"
+      body: "*"
+    };
+  }
+  rpc GetAccountPortfolio(GetAccountPortfolioRequest) returns (GetPortfolioResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/account/{accountId}/portfolio"
+    };
+  }
+  rpc NewPortfolioPosition(NewPortfolioPositionRequest) returns (NewPortfolioPositionResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/account/portfolio/{portfolioId}/position"
+      body: "*"
+    };
+  }
+  rpc DeletePortfolioPosition(DeletePortfolioPositionRequest) returns (DeletePortfolioPositionResponse) {
+    option (google.api.http) = {
+      delete: "/api/v1/account/portfolio/{portfolioId}/position/{positionId}"
+    };
+  }
+  rpc GetAccountDashboard(GetAccountDashboardRequest) returns (GetAccountDashboardResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/account/{accountId}/dashboard"
+    };
+  }
+}
+
+message CreateAccountRequest {
+  Messenger messenger = 1;
+  string messengerId = 2;
+}
+
+message CreateAccountResponse {
+  Account account = 1;
+}
+
+message GetAccountInfoRequest {
+  string messengerId = 1;
+  Messenger messenger = 2;
+}
+
+message AccountInfoResponse {
+  Account account = 1;
+}
+
+message Account {
+  int32 id = 1;
+  Messenger messenger = 2;
+}
+
+enum Messenger {
+  Telegram = 0;
+}
+
+message CreatePortfolioRequest {
+  int32 accountId = 1;
+  string name = 2;
+}
+
+message CreatePortfolioResponse {
+  Portfolio portfolio = 1;
+}
+
+message Portfolio {
+  int32 id = 1;
+  string name = 2;
+  repeated PortfolioPosition positions = 3;
+}
+
+message GetAccountPortfolioRequest {
+  int32 accountId = 1;
+}
+
+message GetPortfolioResponse {
+  repeated Portfolio portfolioList = 1;
+}
+
+message PortfolioPosition {
+  int32 id = 1;
+  string assetCode = 2;
+  int32 quantity = 4;
+  google.protobuf.Timestamp placement_time = 5;
+}
+
+message NewPortfolioPositionRequest {
+  int32 portfolioId = 1;
+  string assetCode = 2;
+  int32 quantity = 4;
+}
+
+message NewPortfolioPositionResponse {
+  PortfolioPosition position = 1;
+}
+
+message DeletePortfolioPositionRequest {
+  int32 portfolioId = 1;
+  int32 positionId = 2;
+}
+
+message DeletePortfolioPositionResponse {}
+
+message GetAccountDashboardRequest {
+  int32 accountId = 1;
+}
+
+message GetAccountDashboardResponse {
+  AccountDashboard dashboard = 1;
+}
+
+message AccountDashboard {
+  int32 accountId = 1;
+  double totalValue = 2;
+  repeated PortfolioValueInfo portfolioValueList = 3;
+}
+
+message PortfolioValueInfo {
+  int32 portfolioId = 1;
+  string portfolioName = 2;
+  double value = 3;
+}

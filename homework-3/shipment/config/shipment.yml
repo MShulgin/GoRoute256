@@ -1,0 +1,15 @@
+
+server:
+  http:
+    addr: ":8085"
+
+kafka:
+  brokers: ["localhost:9095"]
+  groupId: "shipment_service"
+
+storage:
+  pg_cluster:
+    name: "cluster_1"
+
+etcd:
+  servers: ["localhost:2379"]

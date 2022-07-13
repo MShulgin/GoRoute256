@@ -1,0 +1,12 @@
+
+kafka:
+  brokers: ["localhost:9095"]
+  groupId: "post_service"
+
+storage:
+  pg:
+    host: "localhost"
+    port: 5443
+    user: "app"
+    password: "pwd"
+    database: "post"

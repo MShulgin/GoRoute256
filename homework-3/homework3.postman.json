@@ -1,0 +1,137 @@
+{
+	"info": {
+		"_postman_id": "282ae2c4-f47a-402e-931c-9153b0f12315",
+		"name": "homework3",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "3298012"
+	},
+	"item": [
+		{
+			"name": "SaveOffer",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"sellerId\": 1,\n    \"productId\": 2,\n    \"stock\": 150,\n    \"price\": 155.0\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8081/api/offer",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"api",
+						"offer"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetPrice",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8081/api/offer/2-1-2/price",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"api",
+						"offer",
+						"2-1-2",
+						"price"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "SaveShipment",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"orderId\": \"4-1\",\n    \"sellerId\": 1,\n    \"destinationId\": 1,\n    \"units\": [\n        {\"offerId\": \"2\", \"count\": 5}\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8085/api/shipment",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8085",
+					"path": [
+						"api",
+						"shipment"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetShipments",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8085/api/shipment?orderId=4-1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8085",
+					"path": [
+						"api",
+						"shipment"
+					],
+					"query": [
+						{
+							"key": "orderId",
+							"value": "4-1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetShipmentById",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8085/api/shipment/ec7314d3-42bd-4f00-bc8a-beae1ccf0059",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8085",
+					"path": [
+						"api",
+						"shipment",
+						"ec7314d3-42bd-4f00-bc8a-beae1ccf0059"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

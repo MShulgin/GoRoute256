@@ -1,0 +1,20 @@
+
+server:
+  grpc:
+    addr: ":18080"
+  http:
+    addr: ":18081"
+
+storage:
+  pg:
+    host: "localhost"
+    port: 5432
+    user: app
+    password: pwd
+    database: portfolio
+  schema:
+    path: "./portfolio/db"
+
+service:
+  value_updater:
+    tick: 10m

@@ -1,0 +1,61 @@
+version: "3"
+
+services:
+  pg:
+    image: "postgres:14"
+    container_name: portfolio_pg
+    environment:
+      POSTGRES_DB: "portfolio"
+      POSTGRES_USER: "app"
+      POSTGRES_PASSWORD: "pwd"
+      PG_DATA: "/var/lib/postgresql/data/pgdata"
+    volumes:
+      - portfolio_pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  portfolio:
+    build:
+      context: .
+      dockerfile: ./portfolio/docker/Dockerfile
+    image: portfolio:1.0
+    container_name: portfolio
+    command: "./main -conf /portfolio.yml -migrate"
+    volumes:
+      - "./config/portfolio_docker.yml:/portfolio.yml:ro"
+    ports:
+      - "18080:18080"
+      - "18081:18081"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+    depends_on:
+      pg:
+        condition: service_healthy
+
+  bot:
+    build:
+      context: .
+      dockerfile: ./bot/docker/Dockerfile
+    image: bot:1.0
+    container_name: portfolio_bot
+    command: "./main -conf /bot.yml"
+    volumes:
+      - "./config/bot_docker.yml:/bot.yml:ro"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+    depends_on:
+      - portfolio
+
+volumes:
+  portfolio_pgdata:

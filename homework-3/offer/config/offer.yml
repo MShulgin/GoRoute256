@@ -1,0 +1,19 @@
+
+server:
+  http:
+    addr: ":80"
+
+kafka:
+  brokers: ["kafka-1:9092"]
+  groupId: "offer_service"
+
+storage:
+  pg:
+    host: "pg-offer"
+    port: 5432
+    user: "app"
+    password: "pwd"
+    database: "offer"
+  cache:
+    type: "redis"
+    addr: "redis:6379"
